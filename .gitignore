@@ -1,0 +1,8 @@
+node_modules/
+dist/
+reports/*.json
+reports/*.html
+screenshots/*.png
+config/.env.*
+!config/.env.qa
+!config/.env.uat
