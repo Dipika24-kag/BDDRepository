@@ -1,9 +1,31 @@
-// Shared Playwright browser settings; scenarios are executed by Cucumber, not Playwright Test.
-import { frameworkConfig } from "./config/config";
+import { defineConfig, devices } from '@playwright/test';
+import { defineBddConfig } from 'playwright-bdd';
+import { Config } from './utils/config'
 
-export const playwrightConfig = {
-  baseURL: frameworkConfig.baseUrl,
-  browserName: frameworkConfig.browserName,
-  headless: frameworkConfig.headless,
-  timeout: frameworkConfig.timeoutMs,
-};
+const testDir = defineBddConfig({
+  features: 'features/*.feature',
+  steps: [
+    'src/steps/*.ts',
+    'src/fixtures/bdd-fixtures.ts',
+  ],
+});
+
+export default defineConfig({
+  testDir,
+  fullyParallel: true,
+  workers: process.env.CI ? 2 : undefined,
+  reporter: [
+    ['list'],
+    ['allure-playwright', { outputFolder: 'allure-results' }]
+  ],
+  use: {
+    baseURL: Config.baseUrl,
+    headless: true,
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    trace: 'on-first-retry',
+  },
+  projects: [
+    { name: 'chrome', use: { ...devices['Desktop Chrome'], channel: 'chrome' } }
+  ],
+});
